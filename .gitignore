@@ -43,3 +43,5 @@
 Builds/LinuxMakefile/build/
 
 .vscode/
+
+pre_build/

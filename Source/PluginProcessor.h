@@ -18,7 +18,6 @@ using MonoChain = juce::dsp::ProcessorChain<CutFilter /* LowCut */, Filter /* Pe
 
 enum Slope
 {
-    Slope_0,
     Slope_12,
     Slope_24,
     Slope_36,
@@ -102,7 +101,7 @@ private:
 
     @param chain           The target CutFilter, HighCut or LowCut
     @param coefficients    Coefficients of the CutFilter to set
-    @param slope           The Slope to set, Slope_0, Slope_12, Slope_24, Slope_32 or Slope_48
+    @param slope           The Slope to set, Slope_12, Slope_24, Slope_32 or Slope_48
     */
     template<typename ChainType, typename CoefficientType>
     void updateCutFilter(ChainType& chain,

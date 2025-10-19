@@ -9,6 +9,102 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+
+juce::AudioProcessorValueTreeState::ParameterLayout SimpleAudioPluginAudioProcessor::createParameterLayout()
+{
+    juce::AudioProcessorValueTreeState::ParameterLayout layout;
+    
+    layout.add(std::make_unique<juce::AudioParameterFloat>("LowCut Freq",
+                                                           "LowCut Freq",
+                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f),
+                                                           20.f));
+    
+    layout.add(std::make_unique<juce::AudioParameterFloat>("HighCut Freq",
+                                                           "HighCut Freq",
+                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f),
+                                                           20000.f));
+    
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Peak Freq",
+                                                           "Peak Freq",
+                                                           juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 0.25f),
+                                                           750.f));
+    
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Peak Gain",
+                                                           "Peak Gain",
+                                                           juce::NormalisableRange<float>(-24.f, 24.f, 0.5f, 1.f),
+                                                           0.0f));
+    
+    layout.add(std::make_unique<juce::AudioParameterFloat>("Peak Quality",
+                                                           "Peak Quality",
+                                                           juce::NormalisableRange<float>(0.1f, 10.f, 0.05f, 1.f),
+                                                           1.f));
+    
+    juce::StringArray stringArray;
+    for( int i = 0; i < 4; ++i )
+    {
+        juce::String str;
+        str << (12 + i*12);
+        str << " db/Oct";
+        stringArray.add(str);
+    }
+    
+    layout.add(std::make_unique<juce::AudioParameterChoice>("LowCut Slope", "LowCut Slope", stringArray, 0));
+    layout.add(std::make_unique<juce::AudioParameterChoice>("HighCut Slope", "HighCut Slope", stringArray, 0));
+    
+    return layout;
+}
+
+template<int Index, typename ChainType, typename CoefficientType>
+void SimpleAudioPluginAudioProcessor::update(ChainType& chain, const CoefficientType& coefficients)
+{
+    *chain.template get<Index>().coefficients = *coefficients[Index];
+    chain.template setBypassed<Index>(false);
+}
+
+template<typename ChainType, typename CoefficientType>
+void SimpleAudioPluginAudioProcessor::updateCutFilter(ChainType& chain,
+                                                      const CoefficientType& coefficients,
+                                                      const Slope& slope)
+{
+    chain.template setBypassed<0>(true);
+    chain.template setBypassed<1>(true);
+    chain.template setBypassed<2>(true);
+    chain.template setBypassed<3>(true);
+    
+    switch(slope)
+    {
+        case Slope_48:
+        {
+            update<3>(chain, coefficients);
+        }
+        case Slope_36:
+        {
+            update<2>(chain, coefficients);
+        }
+        case Slope_24:
+        {
+            update<1>(chain, coefficients);
+        }
+        case Slope_12:
+        {
+            update<0>(chain, coefficients);
+        }
+    }
+}
+
+void SimpleAudioPluginAudioProcessor::updateFilters()
+{
+    auto lowCutFreq = apvts.getRawParameterValue("LowCut Freq")->load();
+    auto lowCutSlope = Slope(static_cast<int>(apvts.getRawParameterValue("LowCut Slope")->load()));
+    auto lowCutFilter = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(lowCutFreq,
+                                                                                                    getSampleRate(),
+                                                                                                    2 * (lowCutSlope + 1));
+    auto& leftLowCut = leftChain.get<ChainPositions::LowCut>();
+    auto& rightLowCut = rightChain.get<ChainPositions::LowCut>();
+    updateCutFilter(rightLowCut, lowCutFilter, lowCutSlope);
+    updateCutFilter(leftLowCut, lowCutFilter, lowCutSlope);
+}
+
 //==============================================================================
 SimpleAudioPluginAudioProcessor::SimpleAudioPluginAudioProcessor()
 #ifndef JucePlugin_PreferredChannelConfigurations
@@ -19,8 +115,11 @@ SimpleAudioPluginAudioProcessor::SimpleAudioPluginAudioProcessor()
                       #endif
                        .withOutput ("Output", juce::AudioChannelSet::stereo(), true)
                      #endif
-                       )
+                       ),
+#else
+      :
 #endif
+    apvts (*this, nullptr, "Parameters", createParameterLayout())
 {
 }
 

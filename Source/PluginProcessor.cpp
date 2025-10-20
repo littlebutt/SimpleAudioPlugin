@@ -75,15 +75,15 @@ void SimpleAudioPluginAudioProcessor::updateCutFilter(ChainType& chain,
     {
         case Slope_48:
         {
-            update<3>(chain, coefficients);
+            update<3>(chain, coefficients); [[fallthrough]];
         }
         case Slope_36:
         {
-            update<2>(chain, coefficients);
+            update<2>(chain, coefficients); [[fallthrough]];
         }
         case Slope_24:
         {
-            update<1>(chain, coefficients);
+            update<1>(chain, coefficients); [[fallthrough]];
         }
         case Slope_12:
         {
@@ -94,6 +94,7 @@ void SimpleAudioPluginAudioProcessor::updateCutFilter(ChainType& chain,
 
 void SimpleAudioPluginAudioProcessor::updateFilters()
 {
+    // update low cut filter
     auto lowCutFreq = apvts.getRawParameterValue("LowCut Freq")->load();
     auto lowCutSlope = Slope(static_cast<int>(apvts.getRawParameterValue("LowCut Slope")->load()));
     auto lowCutFilter = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(lowCutFreq,
@@ -103,6 +104,29 @@ void SimpleAudioPluginAudioProcessor::updateFilters()
     auto& rightLowCut = rightChain.get<ChainPositions::LowCut>();
     updateCutFilter(rightLowCut, lowCutFilter, lowCutSlope);
     updateCutFilter(leftLowCut, lowCutFilter, lowCutSlope);
+
+    // update high cut filter
+    auto highCutFreq = apvts.getRawParameterValue("HighCut Freq")->load();
+    auto highCutSlope = Slope(static_cast<int>(apvts.getRawParameterValue("HighCut Slope")->load()));
+    auto highCutFilter = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(highCutFreq,
+                                                                                                     getSampleRate(),
+                                                                                                     2 * (highCutSlope + 1));
+    auto& leftHighCut = leftChain.get<ChainPositions::HighCut>();
+    auto& rightHighCut = rightChain.get<ChainPositions::HighCut>();
+    updateCutFilter(rightHighCut, highCutFilter, highCutSlope);
+    updateCutFilter(leftHighCut, highCutFilter, highCutSlope);
+
+    // update peak filter
+    auto peakFreq = apvts.getRawParameterValue("Peak Freq")->load();
+    auto peakQuality = apvts.getRawParameterValue("Peak Quality")->load();
+    auto peakGain = apvts.getRawParameterValue("Peak Gain")->load();
+    auto peakCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
+                                                               peakFreq,
+                                                               peakQuality,
+                                                               juce::Decibels::decibelsToGain(peakGain));
+    *leftChain.get<ChainPositions::Peak>().coefficients = *peakCoefficients;
+    *rightChain.get<ChainPositions::Peak>().coefficients = *peakCoefficients;
+
 }
 
 //==============================================================================
@@ -192,8 +216,18 @@ void SimpleAudioPluginAudioProcessor::changeProgramName (int index, const juce::
 //==============================================================================
 void SimpleAudioPluginAudioProcessor::prepareToPlay (double sampleRate, int samplesPerBlock)
 {
-    // Use this method as the place to do any pre-playback
-    // initialisation that you need..
+    juce::dsp::ProcessSpec spec;
+    
+    spec.maximumBlockSize = samplesPerBlock;
+    
+    spec.numChannels = 1;
+    
+    spec.sampleRate = sampleRate;
+    
+    leftChain.prepare(spec);
+    rightChain.prepare(spec);
+    
+    updateFilters();
 }
 
 void SimpleAudioPluginAudioProcessor::releaseResources()
@@ -242,19 +276,19 @@ void SimpleAudioPluginAudioProcessor::processBlock (juce::AudioBuffer<float>& bu
     // this code if your algorithm always overwrites all the output channels.
     for (auto i = totalNumInputChannels; i < totalNumOutputChannels; ++i)
         buffer.clear (i, 0, buffer.getNumSamples());
+    
+    updateFilters();
 
-    // This is the place where you'd normally do the guts of your plugin's
-    // audio processing...
-    // Make sure to reset the state if your inner loop is processing
-    // the samples and the outer loop is handling the channels.
-    // Alternatively, you can process the samples with the channels
-    // interleaved by keeping the same state.
-    for (int channel = 0; channel < totalNumInputChannels; ++channel)
-    {
-        auto* channelData = buffer.getWritePointer (channel);
-
-        // ..do something to the data...
-    }
+    juce::dsp::AudioBlock<float> block(buffer);
+    
+    auto leftBlock = block.getSingleChannelBlock(0);
+    auto rightBlock = block.getSingleChannelBlock(1);
+    
+    juce::dsp::ProcessContextReplacing<float> leftContext(leftBlock);
+    juce::dsp::ProcessContextReplacing<float> rightContext(rightBlock);
+    
+    leftChain.process(leftContext);
+    rightChain.process(rightContext);
 }
 
 //==============================================================================
@@ -265,7 +299,7 @@ bool SimpleAudioPluginAudioProcessor::hasEditor() const
 
 juce::AudioProcessorEditor* SimpleAudioPluginAudioProcessor::createEditor()
 {
-    return new SimpleAudioPluginAudioProcessorEditor (*this);
+    return new juce::GenericAudioProcessorEditor(*this);
 }
 
 //==============================================================================

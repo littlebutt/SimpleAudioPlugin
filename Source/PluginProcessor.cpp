@@ -94,9 +94,10 @@ void SimpleAudioPluginAudioProcessor::updateCutFilter(ChainType& chain,
 
 void SimpleAudioPluginAudioProcessor::updateFilters()
 {
+    auto chainSettings = ChainSettings::getChainSettings(apvts);
     // update low cut filter
-    auto lowCutFreq = apvts.getRawParameterValue("LowCut Freq")->load();
-    auto lowCutSlope = Slope(static_cast<int>(apvts.getRawParameterValue("LowCut Slope")->load()));
+    auto lowCutFreq = chainSettings.lowCutFreq;
+    auto lowCutSlope = chainSettings.lowCutSlope;
     auto lowCutFilter = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(lowCutFreq,
                                                                                                     getSampleRate(),
                                                                                                     2 * (lowCutSlope + 1));
@@ -106,9 +107,9 @@ void SimpleAudioPluginAudioProcessor::updateFilters()
     updateCutFilter(leftLowCut, lowCutFilter, lowCutSlope);
 
     // update high cut filter
-    auto highCutFreq = apvts.getRawParameterValue("HighCut Freq")->load();
-    auto highCutSlope = Slope(static_cast<int>(apvts.getRawParameterValue("HighCut Slope")->load()));
-    auto highCutFilter = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(highCutFreq,
+    auto highCutFreq = chainSettings.highCutFreq;
+    auto highCutSlope = chainSettings.highCutSlope;
+    auto highCutFilter = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(highCutFreq,
                                                                                                      getSampleRate(),
                                                                                                      2 * (highCutSlope + 1));
     auto& leftHighCut = leftChain.get<ChainPositions::HighCut>();
@@ -117,9 +118,9 @@ void SimpleAudioPluginAudioProcessor::updateFilters()
     updateCutFilter(leftHighCut, highCutFilter, highCutSlope);
 
     // update peak filter
-    auto peakFreq = apvts.getRawParameterValue("Peak Freq")->load();
-    auto peakQuality = apvts.getRawParameterValue("Peak Quality")->load();
-    auto peakGain = apvts.getRawParameterValue("Peak Gain")->load();
+    auto peakFreq = chainSettings.peakFreq;
+    auto peakQuality = chainSettings.peakQuality;
+    auto peakGain = chainSettings.peakGainInDecibels;
     auto peakCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(getSampleRate(),
                                                                peakFreq,
                                                                peakQuality,

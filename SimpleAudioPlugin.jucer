@@ -4,9 +4,6 @@
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
   <MAINGROUP id="piphfs" name="SimpleAudioPlugin">
     <GROUP id="{4BE22D72-288E-D51E-FA3F-194F058BBD6F}" name="Source">
-      <FILE id="kfMGbQ" name="ChainSettings.cpp" compile="1" resource="0"
-            file="Source/ChainSettings.cpp"/>
-      <FILE id="kqmska" name="ChainSettings.h" compile="0" resource="0" file="Source/ChainSettings.h"/>
       <FILE id="GzpJJj" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="FI46RD" name="PluginProcessor.h" compile="0" resource="0"

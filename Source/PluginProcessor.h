@@ -10,14 +10,19 @@
 
 #include <JuceHeader.h>
 
-#include "ChainSettings.h"
-
 using Filter = juce::dsp::IIR::Filter<float>;
 
 using CutFilter = juce::dsp::ProcessorChain<Filter /* Slope 12 */, Filter /* Slope 24 */, Filter /* Slope 36 */, Filter /* Slope 48 */>;
 
 using MonoChain = juce::dsp::ProcessorChain<CutFilter /* LowCut */, Filter /* Peak */, CutFilter /* HighCut */>;
 
+enum Slope
+{
+    Slope_12,
+    Slope_24,
+    Slope_36,
+    Slope_48
+};
 
 enum ChainPositions
 {

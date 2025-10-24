@@ -108,7 +108,7 @@ void SimpleAudioPluginAudioProcessor::updateFilters()
     // update high cut filter
     auto highCutFreq = apvts.getRawParameterValue("HighCut Freq")->load();
     auto highCutSlope = Slope(static_cast<int>(apvts.getRawParameterValue("HighCut Slope")->load()));
-    auto highCutFilter = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(highCutFreq,
+    auto highCutFilter = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(highCutFreq,
                                                                                                      getSampleRate(),
                                                                                                      2 * (highCutSlope + 1));
     auto& leftHighCut = leftChain.get<ChainPositions::HighCut>();

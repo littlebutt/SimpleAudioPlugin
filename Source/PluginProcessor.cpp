@@ -9,6 +9,12 @@
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
 
+#ifdef __INTELLISENSE__
+
+juce::String JucePlugin_Name = juce::String(); // Mock
+
+#endif
+
 
 juce::AudioProcessorValueTreeState::ParameterLayout SimpleAudioPluginAudioProcessor::createParameterLayout()
 {

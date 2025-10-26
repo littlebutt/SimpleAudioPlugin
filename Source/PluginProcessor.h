@@ -79,11 +79,11 @@ public:
 
     void updateFilters();
 
-private:
-
+    //==============================================================================
     // AudioProcessorValueTreeState for the plugin processor
     juce::AudioProcessorValueTreeState apvts;
 
+private:
     // ProcessorChain for processing left channel and right channel
     MonoChain leftChain, rightChain;
 

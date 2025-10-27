@@ -11,7 +11,7 @@
 #include <JuceHeader.h>
 #include "PluginProcessor.h"
 
-#include "RotarySliderWithLabels.h"
+#include "components/RotarySliderWithLabels.h"
 
 //==============================================================================
 /**
@@ -58,7 +58,7 @@ private:
 
     @return The array of the components.
      */
-    juce::Array<juce::Component*> getComps() const;
+    juce::Array<juce::Component*> getComps();
 
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleAudioPluginAudioProcessorEditor)
 };

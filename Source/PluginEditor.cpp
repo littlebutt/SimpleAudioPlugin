@@ -65,7 +65,7 @@ SimpleAudioPluginAudioProcessorEditor::~SimpleAudioPluginAudioProcessorEditor()
 void SimpleAudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 {
     using namespace juce;
-    g.fillAll (getLookAndFeel().findColour (ResizableWindow::backgroundColourId));
+    g.fillAll(Colours::black);
 
     Path curve;
 
@@ -122,9 +122,9 @@ void SimpleAudioPluginAudioProcessorEditor::resized()
     // subcomponents in your editor..
 }
 
-juce::Array<juce::Component*> SimpleAudioPluginAudioProcessorEditor::getComps() const
+juce::Array<juce::Component*> SimpleAudioPluginAudioProcessorEditor::getComps()
 {
-    juce::Array<juce::Component*> array = {
+    juce::Array<juce::Component*> array {
                                             &peakFreqSlider,
                                             &peakGainSlider,
                                             &peakQualitySlider,

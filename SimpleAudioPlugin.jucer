@@ -4,6 +4,14 @@
               useAppConfig="0" addUsingNamespaceToJuceHeader="0" jucerFormatVersion="1">
   <MAINGROUP id="piphfs" name="SimpleAudioPlugin">
     <GROUP id="{4BE22D72-288E-D51E-FA3F-194F058BBD6F}" name="Source">
+      <GROUP id="{072120BD-2F55-E35A-9B07-567CB526C7E3}" name="components">
+        <FILE id="VAXVyn" name="LookAndFeel.cpp" compile="1" resource="0" file="Source/components/LookAndFeel.cpp"/>
+        <FILE id="fmDXtf" name="LookAndFeel.h" compile="0" resource="0" file="Source/components/LookAndFeel.h"/>
+        <FILE id="wLyQls" name="RotarySliderWithLabels.cpp" compile="1" resource="0"
+              file="Source/components/RotarySliderWithLabels.cpp"/>
+        <FILE id="cpdaFa" name="RotarySliderWithLabels.h" compile="0" resource="0"
+              file="Source/components/RotarySliderWithLabels.h"/>
+      </GROUP>
       <FILE id="GzpJJj" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="FI46RD" name="PluginProcessor.h" compile="0" resource="0"

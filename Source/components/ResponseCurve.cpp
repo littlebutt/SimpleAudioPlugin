@@ -54,6 +54,22 @@ void ResponseCurve::paint(juce::Graphics& g)
         g.setColour(gDb == 0.f ? Colour(0u, 172u, 1u) : Colours::darkgrey );
         g.drawHorizontalLine(y, left, right);
     }
+
+    // Draw curve
+    auto leftChannelFFTPath = leftPathProducer.getPath();
+    leftChannelFFTPath.applyTransform(AffineTransform().translation(renderArea.getX(), renderArea.getY()));
+    
+    g.setColour(Colour(97u, 18u, 167u)); //purple-
+    g.strokePath(leftChannelFFTPath, PathStrokeType(1.f));
+    
+    auto rightChannelFFTPath = rightPathProducer.getPath();
+    rightChannelFFTPath.applyTransform(AffineTransform().translation(renderArea.getX(), renderArea.getY()));
+    
+    g.setColour(Colour(215u, 201u, 134u));
+    g.strokePath(rightChannelFFTPath, PathStrokeType(1.f));
+
+    g.setColour(Colours::white);
+    g.strokePath(responseCurve, PathStrokeType(2.f));
     
     Path border;
     
@@ -89,7 +105,9 @@ void ResponseCurve::paint(juce::Graphics& g)
             str << "k";
         str << "Hz";
         
-        auto textWidth = g.getCurrentFont().getStringWidth(str);
+        GlyphArrangement arr;
+        arr.addLineOfText(g.getCurrentFont(), str, 0, 0);
+        auto textWidth = arr.getBoundingBox(0, -1, true).getWidth();
 
         Rectangle<int> r;
 
@@ -109,7 +127,9 @@ void ResponseCurve::paint(juce::Graphics& g)
             str << "+";
         str << gDb;
         
-        auto textWidth = g.getCurrentFont().getStringWidth(str);
+        GlyphArrangement arr;
+        arr.addLineOfText(g.getCurrentFont(), str, 0, 0);
+        auto textWidth = arr.getBoundingBox(0, -1, true).getWidth();
         
         Rectangle<int> r;
         r.setSize(textWidth, fontHeight);
@@ -124,7 +144,9 @@ void ResponseCurve::paint(juce::Graphics& g)
         str << (gDb - 24.f);
 
         r.setX(1);
-        textWidth = g.getCurrentFont().getStringWidth(str);
+        arr.clear();
+        arr.addLineOfText(g.getCurrentFont(), str, 0, 0);
+        textWidth = arr.getBoundingBox(0, -1, true).getWidth();
         r.setSize(textWidth, fontHeight);
         g.setColour(Colours::lightgrey);
         g.drawFittedText(str, r, juce::Justification::centredLeft, 1);
@@ -227,9 +249,7 @@ void ResponseCurve::updateResponseCurve()
     {
         return jmap(input, -24.0, 24.0, outputMin, outputMax);
     };
-    
     responseCurve.startNewSubPath(responseArea.getX(), map(mags.front()));
-    
     for( size_t i = 1; i < mags.size(); ++i )
     {
         responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));

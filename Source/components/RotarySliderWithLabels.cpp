@@ -18,7 +18,7 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
 {
     using namespace juce;
     auto startAng = degreesToRadians(180.f + 45.f);
-    auto endAng = degreesToRadians(180.f + 45.f);
+    auto endAng = degreesToRadians(180.f - 45.f) + MathConstants<float>::twoPi;
 
     auto range = getRange();
     auto sliderBounds = getSliderBounds();
@@ -50,7 +50,10 @@ void RotarySliderWithLabels::paint(juce::Graphics& g)
         
         Rectangle<float> r;
         auto str = labels[i].label;
-        r.setSize(g.getCurrentFont().getStringWidth(str), getTextHeight());
+        GlyphArrangement arr;
+        arr.addLineOfText(g.getCurrentFont(), str, 0, 0);
+        auto strWidth = arr.getBoundingBox(0, -1, true).getWidth();
+        r.setSize(strWidth, getTextHeight());
         r.setCentre(c);
         r.setY(r.getY() + getTextHeight());
         

@@ -12,6 +12,7 @@
 #include "PluginProcessor.h"
 
 #include "components/RotarySliderWithLabels.h"
+#include "components/ResponseCurve.h"
 
 //==============================================================================
 /**
@@ -50,6 +51,8 @@ private:
                 highCutFreqSliderAttachment,
                 lowCutSlopeSliderAttachment,
                 highCutSlopeSliderAttachment;
+
+    ResponseCurve responseCurve;
 
     LookAndFeel lnf;
 

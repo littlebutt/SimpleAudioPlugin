@@ -1,7 +1,7 @@
 #include "AnalyzerPathGenerator.h"
 
-template<typename PathType>
-void AnalyzerPathGenerator<PathType>::generatePath(const std::vector<float>& renderData,
+template<>
+void AnalyzerPathGenerator<juce::Path>::generatePath(const std::vector<float>& renderData,
                     juce::Rectangle<float> fftBounds,
                     int fftSize,
                     float binWidth,
@@ -12,7 +12,7 @@ void AnalyzerPathGenerator<PathType>::generatePath(const std::vector<float>& ren
     auto width = fftBounds.getWidth();
     int numBins = (int)fftSize / 2;
 
-    PathType p;
+    juce::Path p;
     p.preallocateSpace(3 * (int)fftBounds.getWidth());
 
     auto map = [bottom, top, negativeInfinity](float v)
@@ -47,14 +47,14 @@ void AnalyzerPathGenerator<PathType>::generatePath(const std::vector<float>& ren
     pathFifo.push(p);
 }
 
-template<typename PathType>
-int AnalyzerPathGenerator<PathType>::getNumPathsAvailable() const
+template<>
+int AnalyzerPathGenerator<juce::Path>::getNumPathsAvailable() const
 {
     return pathFifo.getNumAvailableForReading();
 }
 
-template<typename PathType>
-bool AnalyzerPathGenerator<PathType>::getPath(PathType& path)
+template<>
+bool AnalyzerPathGenerator<juce::Path>::getPath(juce::Path& path)
 {
     return pathFifo.pull(path);
 }

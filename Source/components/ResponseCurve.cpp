@@ -1,14 +1,29 @@
 #include "ResponseCurve.h"
+#include "../PluginProcessor.h"
 
 ResponseCurve::ResponseCurve(SimpleAudioPluginAudioProcessor& p)
-: audioProcessor(p)
+: audioProcessor(p),
+leftPathProducer(audioProcessor.leftChannelFifo),
+rightPathProducer(audioProcessor.rightChannelFifo)
 {
+    const auto& params = audioProcessor.getParameters();
+    for (auto param : params)
+    {
+        param->addListener(this);
+    }
 
+    updateChain();
+    
+    startTimerHz(60);
 }
 
 ResponseCurve::~ResponseCurve()
 {
-
+    const auto& params = audioProcessor.getParameters();
+    for (auto param : params)
+    {
+        param->removeListener(this);
+    }
 }
 
 void ResponseCurve::paint(juce::Graphics& g)
@@ -51,31 +66,11 @@ void ResponseCurve::paint(juce::Graphics& g)
     
     g.fillPath(border);
     
-    drawTextLabels(g);
-    
-    g.setColour(Colours::orange);
-    g.drawRoundedRectangle(getRenderArea().toFloat(), 4.f, 1.f);
-    
-}
-
-void ResponseCurve::resized()
-{
-
-}
-
-void ResponseCurve::drawTextLabels(juce::Graphics& g)
-{
-    using namespace juce;
+    // Draw text labels
     g.setColour(Colours::lightgrey);
     const int fontHeight = 10;
     g.setFont(fontHeight);
-    
-    auto renderArea = getAnalysisArea();
-    auto left = renderArea.getX();
-    
-    auto top = renderArea.getY();
-    auto bottom = renderArea.getBottom();
-    auto width = renderArea.getWidth();
+
     
     for (auto x : freqs)
     {
@@ -134,6 +129,143 @@ void ResponseCurve::drawTextLabels(juce::Graphics& g)
         g.setColour(Colours::lightgrey);
         g.drawFittedText(str, r, juce::Justification::centredLeft, 1);
     }
+    
+    g.setColour(Colours::orange);
+    g.drawRoundedRectangle(getRenderArea().toFloat(), 4.f, 1.f);
+    
+}
+
+void ResponseCurve::resized()
+{
+    using namespace juce;
+    
+    responseCurve.preallocateSpace(getWidth() * 3);
+    updateResponseCurve();
+}
+
+void ResponseCurve::parameterValueChanged(int parameterIndex, float newValue)
+{
+    parametersChanged.set(true);
+}
+
+void ResponseCurve::parameterGestureChanged(int parameterIndex, bool gestureIsStarting) { }
+
+void ResponseCurve::timerCallback()
+{
+    auto fftBounds = getAnalysisArea().toFloat();
+    auto sampleRate = audioProcessor.getSampleRate();
+        
+    leftPathProducer.process(fftBounds, sampleRate);
+    rightPathProducer.process(fftBounds, sampleRate);
+
+    if (parametersChanged.compareAndSetBool(false, true))
+    {
+        updateChain();
+        updateResponseCurve();
+    }
+    
+    repaint();
+}
+
+void ResponseCurve::updateResponseCurve()
+{
+    using namespace juce;
+    auto responseArea = getAnalysisArea();
+    
+    auto w = responseArea.getWidth();
+    
+    auto& lowcut = monoChain.get<ChainPositions::LowCut>();
+    auto& peak = monoChain.get<ChainPositions::Peak>();
+    auto& highcut = monoChain.get<ChainPositions::HighCut>();
+    
+    auto sampleRate = audioProcessor.getSampleRate();
+    
+    std::vector<double> mags;
+    
+    mags.resize(w);
+    
+    for( int i = 0; i < w; ++i )
+    {
+        double mag = 1.f;
+        auto freq = mapToLog10(double(i) / double(w), 20.0, 20000.0);
+        
+        if(! monoChain.isBypassed<ChainPositions::Peak>() )
+            mag *= peak.coefficients->getMagnitudeForFrequency(freq, sampleRate);
+        
+        if( !monoChain.isBypassed<ChainPositions::LowCut>() )
+        {
+            if( !lowcut.isBypassed<0>() )
+                mag *= lowcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+            if( !lowcut.isBypassed<1>() )
+                mag *= lowcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+            if( !lowcut.isBypassed<2>() )
+                mag *= lowcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+            if( !lowcut.isBypassed<3>() )
+                mag *= lowcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+        }
+        
+        if( !monoChain.isBypassed<ChainPositions::HighCut>() )
+        {
+            if( !highcut.isBypassed<0>() )
+                mag *= highcut.get<0>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+            if( !highcut.isBypassed<1>() )
+                mag *= highcut.get<1>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+            if( !highcut.isBypassed<2>() )
+                mag *= highcut.get<2>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+            if( !highcut.isBypassed<3>() )
+                mag *= highcut.get<3>().coefficients->getMagnitudeForFrequency(freq, sampleRate);
+        }
+            
+        mags[i] = Decibels::gainToDecibels(mag);
+    }
+    
+    responseCurve.clear();
+    
+    const double outputMin = responseArea.getBottom();
+    const double outputMax = responseArea.getY();
+    auto map = [outputMin, outputMax](double input)
+    {
+        return jmap(input, -24.0, 24.0, outputMin, outputMax);
+    };
+    
+    responseCurve.startNewSubPath(responseArea.getX(), map(mags.front()));
+    
+    for( size_t i = 1; i < mags.size(); ++i )
+    {
+        responseCurve.lineTo(responseArea.getX() + i, map(mags[i]));
+    }
+}
+
+void ResponseCurve::updateChain()
+{
+    // update low cut filter
+    auto lowCutFreq = audioProcessor.apvts.getRawParameterValue("LowCut Freq")->load();
+    auto lowCutSlope = Slope(static_cast<int>(audioProcessor.apvts.getRawParameterValue("LowCut Slope")->load()));
+    auto lowCutFilter = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(lowCutFreq,
+                                                                                                    audioProcessor.getSampleRate(),
+                                                                                                    2 * (lowCutSlope + 1));
+    auto& leftLowCut = monoChain.get<ChainPositions::LowCut>();
+    updateCutFilter(leftLowCut, lowCutFilter, lowCutSlope);
+
+    // update high cut filter
+    auto highCutFreq = audioProcessor.apvts.getRawParameterValue("HighCut Freq")->load();
+    auto highCutSlope = Slope(static_cast<int>(audioProcessor.apvts.getRawParameterValue("HighCut Slope")->load()));
+    auto highCutFilter = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(highCutFreq,
+                                                                                                     audioProcessor.getSampleRate(),
+                                                                                                     2 * (highCutSlope + 1));
+    auto& leftHighCut = monoChain.get<ChainPositions::HighCut>();
+    updateCutFilter(leftHighCut, highCutFilter, highCutSlope);
+
+    // update peak filter
+    auto peakFreq = audioProcessor.apvts.getRawParameterValue("Peak Freq")->load();
+    auto peakQuality = audioProcessor.apvts.getRawParameterValue("Peak Quality")->load();
+    auto peakGain = audioProcessor.apvts.getRawParameterValue("Peak Gain")->load();
+    auto peakCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(audioProcessor.getSampleRate(),
+                                                               peakFreq,
+                                                               peakQuality,
+                                                               juce::Decibels::decibelsToGain(peakGain));
+    *monoChain.get<ChainPositions::Peak>().coefficients = *peakCoefficients;
+
 }
 
 juce::Rectangle<int> ResponseCurve::getRenderArea()

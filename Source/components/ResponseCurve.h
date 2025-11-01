@@ -1,25 +1,52 @@
 #pragma once
 
 #include <JuceHeader.h>
+#include "../PathProducer.h"
 
 class SimpleAudioPluginAudioProcessor;
 
-class ResponseCurve : public juce::Component
+using Filter = juce::dsp::IIR::Filter<float>;
+
+using CutFilter = juce::dsp::ProcessorChain<Filter /* Slope 12 */, Filter /* Slope 24 */, Filter /* Slope 36 */, Filter /* Slope 48 */>;
+
+using MonoChain = juce::dsp::ProcessorChain<CutFilter /* LowCut */, Filter /* Peak */, CutFilter /* HighCut */>;
+
+class ResponseCurve : public juce::Component,
+                        juce::AudioProcessorParameter::Listener,
+                        juce::Timer
 {
 public:
     ResponseCurve(SimpleAudioPluginAudioProcessor&);
     ~ResponseCurve();
 
+    //=============================================================
     void paint(juce::Graphics& g) override;
     void resized() override;
 
+    //=============================================================
+    void parameterValueChanged(int parameterIndex, float newValue) override;
+    void parameterGestureChanged(int parameterIndex, bool gestureIsStarting) override;
+
+    //=============================================================
+    void timerCallback();
 private:
     SimpleAudioPluginAudioProcessor& audioProcessor;
 
-    void drawTextLabels(juce::Graphics& g);
-
     juce::Rectangle<int> getRenderArea();
     juce::Rectangle<int> getAnalysisArea();
+
+    //=============================================================
+    juce::Atomic<bool> parametersChanged { false };
+
+    MonoChain monoChain;
+
+    void updateResponseCurve();
+    
+    juce::Path responseCurve;
+
+    void updateChain();
+
+    PathProducer leftPathProducer, rightPathProducer;
 
     //=============================================================
     juce::Array<float> freqs = {

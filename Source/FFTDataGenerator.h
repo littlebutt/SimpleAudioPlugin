@@ -17,9 +17,9 @@ class FFTDataGenerator
 public:
     void produceFFTDataForRendering(const juce::AudioBuffer<float>& audioData, const float negativeInfinity);
     void changeOrder(FFTOrder newOrder);
-    int getFFTSize() const;
-    int getNumAvailableFFTDataBlocks() const;
-    bool getFFTData(BlockType& fftData);
+    int getFFTSize() const { return 1 << order; }
+    int getNumAvailableFFTDataBlocks() const { return fftDataFifo.getNumAvailableForReading(); }
+    bool getFFTData(BlockType& fftData) { return fftDataFifo.pull(fftData); }
 
 private:
     FFTOrder order;

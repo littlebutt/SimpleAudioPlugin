@@ -20,6 +20,8 @@ SimpleAudioPluginAudioProcessorEditor::SimpleAudioPluginAudioProcessorEditor (Si
     lowCutSlopeSlider(*audioProcessor.apvts.getParameter("LowCut Slope"), "dB/Oct"),
     highCutSlopeSlider(*audioProcessor.apvts.getParameter("HighCut Slope"), "dB/Oct"),
 
+    responseCurve(audioProcessor),
+
     peakFreqSliderAttachment(audioProcessor.apvts, "Peak Freq", peakFreqSlider),
     peakGainSliderAttachment(audioProcessor.apvts, "Peak Gain", peakGainSlider),
     peakQualitySliderAttachment(audioProcessor.apvts, "Peak Quality", peakQualitySlider),
@@ -72,10 +74,12 @@ void SimpleAudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
     auto bounds = getLocalBounds();
     auto center = bounds.getCentre();
 
-    g.setFont(Font("Noto Sans", 30, Font::plain));
+    g.setFont(Font(FontOptions("Noto Sans", 16.0f, Font::plain)));
     String title {"Simple Audio Plugin"};
     g.setFont(30);
-    auto titleWidth = g.getCurrentFont().getStringWidth(title);
+    GlyphArrangement arr;
+    arr.addLineOfText(g.getCurrentFont(), title, 0, 0);
+    auto titleWidth = arr.getBoundingBox(0, -1, true).getWidth();
 
     curve.startNewSubPath(center.x, 32);
     curve.lineTo(center.x - titleWidth * 0.45f, 32);
@@ -118,8 +122,29 @@ void SimpleAudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
 
 void SimpleAudioPluginAudioProcessorEditor::resized()
 {
-    // This is generally where you'll want to lay out the positions of any
-    // subcomponents in your editor..
+    auto bounds = getLocalBounds();
+    bounds.removeFromTop(4);
+    bounds.removeFromTop(25);
+    bounds.removeFromTop(5);
+
+    float hRatio = 25.f / 100.f;
+    auto responseArea = bounds.removeFromTop(bounds.getHeight() * hRatio);
+
+    responseCurve.setBounds(responseArea);
+
+    bounds.removeFromTop(5);
+
+    auto lowCutArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
+    auto highCutArea = bounds.removeFromRight(bounds.getWidth() * 0.5);
+    lowCutFreqSlider.setBounds(lowCutArea.removeFromTop(lowCutArea.getHeight() * 0.5));
+    lowCutSlopeSlider.setBounds(lowCutArea);
+
+    highCutFreqSlider.setBounds(highCutArea.removeFromTop(highCutArea.getHeight() * 0.5));
+    highCutSlopeSlider.setBounds(highCutArea);
+
+    peakFreqSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.33));
+    peakGainSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.5));
+    peakQualitySlider.setBounds(bounds);
 }
 
 juce::Array<juce::Component*> SimpleAudioPluginAudioProcessorEditor::getComps()
@@ -131,7 +156,9 @@ juce::Array<juce::Component*> SimpleAudioPluginAudioProcessorEditor::getComps()
                                             &lowCutFreqSlider,
                                             &highCutFreqSlider,
                                             &lowCutSlopeSlider,
-                                            &highCutSlopeSlider
+                                            &highCutSlopeSlider,
+
+                                            &responseCurve
                                         };
     return array;
 }

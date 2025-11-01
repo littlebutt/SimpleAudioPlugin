@@ -5,13 +5,24 @@
   <MAINGROUP id="piphfs" name="SimpleAudioPlugin">
     <GROUP id="{4BE22D72-288E-D51E-FA3F-194F058BBD6F}" name="Source">
       <GROUP id="{072120BD-2F55-E35A-9B07-567CB526C7E3}" name="components">
-        <FILE id="VAXVyn" name="LookAndFeel.cpp" compile="1" resource="0" file="Source/components/LookAndFeel.cpp"/>
         <FILE id="fmDXtf" name="LookAndFeel.h" compile="0" resource="0" file="Source/components/LookAndFeel.h"/>
-        <FILE id="wLyQls" name="RotarySliderWithLabels.cpp" compile="1" resource="0"
-              file="Source/components/RotarySliderWithLabels.cpp"/>
+        <FILE id="VAXVyn" name="LookAndFeel.cpp" compile="1" resource="0" file="Source/components/LookAndFeel.cpp"/>
+        <FILE id="AVDnxJ" name="ResponseCurve.h" compile="0" resource="0" file="Source/components/ResponseCurve.h"/>
+        <FILE id="GKCjnO" name="ResponseCurve.cpp" compile="1" resource="0"
+              file="Source/components/ResponseCurve.cpp"/>
         <FILE id="cpdaFa" name="RotarySliderWithLabels.h" compile="0" resource="0"
               file="Source/components/RotarySliderWithLabels.h"/>
+        <FILE id="wLyQls" name="RotarySliderWithLabels.cpp" compile="1" resource="0"
+              file="Source/components/RotarySliderWithLabels.cpp"/>
       </GROUP>
+      <FILE id="fo5kS2" name="AnalyzerPathGenerator.cpp" compile="1" resource="0"
+            file="Source/AnalyzerPathGenerator.cpp"/>
+      <FILE id="gKRkxN" name="AnalyzerPathGenerator.h" compile="0" resource="0"
+            file="Source/AnalyzerPathGenerator.h"/>
+      <FILE id="nVLcyL" name="FFTDataGenerator.h" compile="0" resource="0"
+            file="Source/FFTDataGenerator.h"/>
+      <FILE id="jPCqOI" name="FFTDataGenerator.cpp" compile="1" resource="0"
+            file="Source/FFTDataGenerator.cpp"/>
       <FILE id="GzpJJj" name="PluginProcessor.cpp" compile="1" resource="0"
             file="Source/PluginProcessor.cpp"/>
       <FILE id="FI46RD" name="PluginProcessor.h" compile="0" resource="0"
@@ -19,6 +30,12 @@
       <FILE id="JEd7Vp" name="PluginEditor.cpp" compile="1" resource="0"
             file="Source/PluginEditor.cpp"/>
       <FILE id="R3akEy" name="PluginEditor.h" compile="0" resource="0" file="Source/PluginEditor.h"/>
+      <FILE id="REDrjT" name="PathProducer.cpp" compile="1" resource="0"
+            file="Source/PathProducer.cpp"/>
+      <FILE id="SZUlQ8" name="PathProducer.h" compile="0" resource="0" file="Source/PathProducer.h"/>
+      <FILE id="VD3TdA" name="Fifo.h" compile="0" resource="0" file="Source/Fifo.h"/>
+      <FILE id="I3x38f" name="SingleChannelSampleFifo.h" compile="0" resource="0"
+            file="Source/SingleChannelSampleFifo.h"/>
     </GROUP>
   </MAINGROUP>
   <MODULES>

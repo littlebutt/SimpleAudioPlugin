@@ -117,9 +117,13 @@ OBJECTS_STANDALONE_PLUGIN := \
 
 OBJECTS_SHARED_CODE := \
   $(JUCE_OBJDIR)/LookAndFeel_ef2ef7ce.o \
+  $(JUCE_OBJDIR)/ResponseCurve_736e21be.o \
   $(JUCE_OBJDIR)/RotarySliderWithLabels_8a91fc31.o \
+  $(JUCE_OBJDIR)/AnalyzerPathGenerator_7ad97089.o \
+  $(JUCE_OBJDIR)/FFTDataGenerator_b55c3afe.o \
   $(JUCE_OBJDIR)/PluginProcessor_a059e380.o \
   $(JUCE_OBJDIR)/PluginEditor_94d4fb09.o \
+  $(JUCE_OBJDIR)/PathProducer_b6868fe0.o \
   $(JUCE_OBJDIR)/include_juce_audio_basics_8a4e984a.o \
   $(JUCE_OBJDIR)/include_juce_audio_devices_63111d02.o \
   $(JUCE_OBJDIR)/include_juce_audio_formats_15f82001.o \
@@ -208,9 +212,24 @@ $(JUCE_OBJDIR)/LookAndFeel_ef2ef7ce.o: ../../Source/components/LookAndFeel.cpp
 	@echo "Compiling LookAndFeel.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
+$(JUCE_OBJDIR)/ResponseCurve_736e21be.o: ../../Source/components/ResponseCurve.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling ResponseCurve.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
 $(JUCE_OBJDIR)/RotarySliderWithLabels_8a91fc31.o: ../../Source/components/RotarySliderWithLabels.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling RotarySliderWithLabels.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/AnalyzerPathGenerator_7ad97089.o: ../../Source/AnalyzerPathGenerator.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling AnalyzerPathGenerator.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/FFTDataGenerator_b55c3afe.o: ../../Source/FFTDataGenerator.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling FFTDataGenerator.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/PluginProcessor_a059e380.o: ../../Source/PluginProcessor.cpp
@@ -221,6 +240,11 @@ $(JUCE_OBJDIR)/PluginProcessor_a059e380.o: ../../Source/PluginProcessor.cpp
 $(JUCE_OBJDIR)/PluginEditor_94d4fb09.o: ../../Source/PluginEditor.cpp
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling PluginEditor.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/PathProducer_b6868fe0.o: ../../Source/PathProducer.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling PathProducer.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/include_juce_audio_basics_8a4e984a.o: ../../JuceLibraryCode/include_juce_audio_basics.cpp

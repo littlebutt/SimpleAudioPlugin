@@ -7,7 +7,6 @@
 */
 
 #include "PluginProcessor.h"
-#include "PluginEditor.h"
 
 #ifdef __INTELLISENSE__
 
@@ -60,43 +59,7 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleAudioPluginAudioProces
     return layout;
 }
 
-template<int Index, typename ChainType, typename CoefficientType>
-void SimpleAudioPluginAudioProcessor::update(ChainType& chain, const CoefficientType& coefficients)
-{
-    *chain.template get<Index>().coefficients = *coefficients[Index];
-    chain.template setBypassed<Index>(false);
-}
 
-template<typename ChainType, typename CoefficientType>
-void SimpleAudioPluginAudioProcessor::updateCutFilter(ChainType& chain,
-                                                      const CoefficientType& coefficients,
-                                                      const Slope& slope)
-{
-    chain.template setBypassed<0>(true);
-    chain.template setBypassed<1>(true);
-    chain.template setBypassed<2>(true);
-    chain.template setBypassed<3>(true);
-    
-    switch(slope)
-    {
-        case Slope_48:
-        {
-            update<3>(chain, coefficients); [[fallthrough]];
-        }
-        case Slope_36:
-        {
-            update<2>(chain, coefficients); [[fallthrough]];
-        }
-        case Slope_24:
-        {
-            update<1>(chain, coefficients); [[fallthrough]];
-        }
-        case Slope_12:
-        {
-            update<0>(chain, coefficients);
-        }
-    }
-}
 
 void SimpleAudioPluginAudioProcessor::updateFilters()
 {

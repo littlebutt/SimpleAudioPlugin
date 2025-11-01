@@ -1,7 +1,7 @@
 #include "FFTDataGenerator.h"
 
-template<typename BlockType>
-void FFTDataGenerator<BlockType>::produceFFTDataForRendering(const juce::AudioBuffer<float>& audioData, const float negativeInfinity)
+template<>
+void FFTDataGenerator<std::vector<float>>::produceFFTDataForRendering(const juce::AudioBuffer<float>& audioData, const float negativeInfinity)
 {
     const auto fftSize = getFFTSize();
         
@@ -41,8 +41,8 @@ void FFTDataGenerator<BlockType>::produceFFTDataForRendering(const juce::AudioBu
         fftDataFifo.push(fftData);
 }
 
-template<typename BlockType>
-void FFTDataGenerator<BlockType>::changeOrder(FFTOrder newOrder)
+template<>
+void FFTDataGenerator<std::vector<float>>::changeOrder(FFTOrder newOrder)
 {
     order = newOrder;
     auto fftSize = getFFTSize();
@@ -56,11 +56,3 @@ void FFTDataGenerator<BlockType>::changeOrder(FFTOrder newOrder)
     fftDataFifo.prepare(fftData.size());
 }
 
-template<typename BlockType>
-int FFTDataGenerator<BlockType>::getNumAvailableFFTDataBlocks() const { return fftDataFifo.getNumAvailableForReading();}
-
-template<typename BlockType>
-int FFTDataGenerator<BlockType>::getFFTSize() const { return 1 << order; }
-
-template<typename BlockType>
-bool FFTDataGenerator<BlockType>::getFFTData(BlockType& fftData) { return fftDataFifo.pull(fftData); }

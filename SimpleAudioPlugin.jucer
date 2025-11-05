@@ -19,6 +19,10 @@
             file="Source/AnalyzerPathGenerator.cpp"/>
       <FILE id="gKRkxN" name="AnalyzerPathGenerator.h" compile="0" resource="0"
             file="Source/AnalyzerPathGenerator.h"/>
+      <FILE id="n0D1GR" name="CompressorBand.cpp" compile="1" resource="0"
+            file="Source/CompressorBand.cpp"/>
+      <FILE id="dxOQVp" name="CompressorBand.h" compile="0" resource="0"
+            file="Source/CompressorBand.h"/>
       <FILE id="nVLcyL" name="FFTDataGenerator.h" compile="0" resource="0"
             file="Source/FFTDataGenerator.h"/>
       <FILE id="jPCqOI" name="FFTDataGenerator.cpp" compile="1" resource="0"
@@ -33,6 +37,7 @@
       <FILE id="REDrjT" name="PathProducer.cpp" compile="1" resource="0"
             file="Source/PathProducer.cpp"/>
       <FILE id="SZUlQ8" name="PathProducer.h" compile="0" resource="0" file="Source/PathProducer.h"/>
+      <FILE id="dxd33k" name="Params.h" compile="0" resource="0" file="Source/Params.h"/>
       <FILE id="VD3TdA" name="Fifo.h" compile="0" resource="0" file="Source/Fifo.h"/>
       <FILE id="I3x38f" name="SingleChannelSampleFifo.h" compile="0" resource="0"
             file="Source/SingleChannelSampleFifo.h"/>

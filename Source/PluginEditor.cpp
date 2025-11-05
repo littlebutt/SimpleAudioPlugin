@@ -8,27 +8,28 @@
 
 #include "PluginProcessor.h"
 #include "PluginEditor.h"
+#include "Params.h"
 
 //==============================================================================
 SimpleAudioPluginAudioProcessorEditor::SimpleAudioPluginAudioProcessorEditor (SimpleAudioPluginAudioProcessor& p)
     : AudioProcessorEditor (&p), audioProcessor (p),
-    peakFreqSlider(*audioProcessor.apvts.getParameter("Peak Freq"), "Hz"),
-    peakGainSlider(*audioProcessor.apvts.getParameter("Peak Gain"), "dB"),
-    peakQualitySlider(*audioProcessor.apvts.getParameter("Peak Quality"), ""),
-    lowCutFreqSlider(*audioProcessor.apvts.getParameter("LowCut Freq"), "Hz"),
-    highCutFreqSlider(*audioProcessor.apvts.getParameter("HighCut Freq"), "Hz"),
-    lowCutSlopeSlider(*audioProcessor.apvts.getParameter("LowCut Slope"), "dB/Oct"),
-    highCutSlopeSlider(*audioProcessor.apvts.getParameter("HighCut Slope"), "dB/Oct"),
+    peakFreqSlider(*audioProcessor.apvts.getParameter(Params::PeakFreq), "Hz"),
+    peakGainSlider(*audioProcessor.apvts.getParameter(Params::PeakGain), "dB"),
+    peakQualitySlider(*audioProcessor.apvts.getParameter(Params::PeakQuality), ""),
+    lowCutFreqSlider(*audioProcessor.apvts.getParameter(Params::LowCutFreq), "Hz"),
+    highCutFreqSlider(*audioProcessor.apvts.getParameter(Params::HighCutFreq), "Hz"),
+    lowCutSlopeSlider(*audioProcessor.apvts.getParameter(Params::LowCutSlope), "dB/Oct"),
+    highCutSlopeSlider(*audioProcessor.apvts.getParameter(Params::HighCutSlope), "dB/Oct"),
 
     responseCurve(audioProcessor),
 
-    peakFreqSliderAttachment(audioProcessor.apvts, "Peak Freq", peakFreqSlider),
-    peakGainSliderAttachment(audioProcessor.apvts, "Peak Gain", peakGainSlider),
-    peakQualitySliderAttachment(audioProcessor.apvts, "Peak Quality", peakQualitySlider),
-    lowCutFreqSliderAttachment(audioProcessor.apvts, "LowCut Freq", lowCutFreqSlider),
-    highCutFreqSliderAttachment(audioProcessor.apvts, "HighCut Freq", highCutFreqSlider),
-    lowCutSlopeSliderAttachment(audioProcessor.apvts, "LowCut Slope", lowCutSlopeSlider),
-    highCutSlopeSliderAttachment(audioProcessor.apvts, "HighCut Slope", highCutSlopeSlider)
+    peakFreqSliderAttachment(audioProcessor.apvts, Params::PeakFreq, peakFreqSlider),
+    peakGainSliderAttachment(audioProcessor.apvts, Params::PeakGain, peakGainSlider),
+    peakQualitySliderAttachment(audioProcessor.apvts, Params::PeakQuality, peakQualitySlider),
+    lowCutFreqSliderAttachment(audioProcessor.apvts, Params::LowCutFreq, lowCutFreqSlider),
+    highCutFreqSliderAttachment(audioProcessor.apvts, Params::HighCutFreq, highCutFreqSlider),
+    lowCutSlopeSliderAttachment(audioProcessor.apvts, Params::LowCutSlope, lowCutSlopeSlider),
+    highCutSlopeSliderAttachment(audioProcessor.apvts, Params::HighCutSlope, highCutSlopeSlider)
 {
     peakFreqSlider.labels.add({0.f, "20Hz"});
     peakFreqSlider.labels.add({1.f, "20kHz"});

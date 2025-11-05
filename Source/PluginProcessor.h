@@ -12,6 +12,8 @@
 
 #include "PluginEditor.h"
 
+#include "CompressorBand.h"
+
 enum Slope
 {
     Slope_12,
@@ -137,6 +139,9 @@ private:
     // ProcessorChain for processing left channel and right channel
     MonoChain leftChain, rightChain;
 
+    //==============================================================================
+    // Compressor
+    CompressorBand compressorBand;
     //==============================================================================
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR (SimpleAudioPluginAudioProcessor)
 };

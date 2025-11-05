@@ -1,5 +1,6 @@
 #include "ResponseCurve.h"
 #include "../PluginProcessor.h"
+#include "../Params.h"
 
 ResponseCurve::ResponseCurve(SimpleAudioPluginAudioProcessor& p)
 : audioProcessor(p),
@@ -259,8 +260,8 @@ void ResponseCurve::updateResponseCurve()
 void ResponseCurve::updateChain()
 {
     // update low cut filter
-    auto lowCutFreq = audioProcessor.apvts.getRawParameterValue("LowCut Freq")->load();
-    auto lowCutSlope = Slope(static_cast<int>(audioProcessor.apvts.getRawParameterValue("LowCut Slope")->load()));
+    auto lowCutFreq = audioProcessor.apvts.getRawParameterValue(Params::LowCutFreq)->load();
+    auto lowCutSlope = Slope(static_cast<int>(audioProcessor.apvts.getRawParameterValue(Params::LowCutSlope)->load()));
     auto lowCutFilter = juce::dsp::FilterDesign<float>::designIIRHighpassHighOrderButterworthMethod(lowCutFreq,
                                                                                                     audioProcessor.getSampleRate(),
                                                                                                     2 * (lowCutSlope + 1));
@@ -268,8 +269,8 @@ void ResponseCurve::updateChain()
     updateCutFilter(leftLowCut, lowCutFilter, lowCutSlope);
 
     // update high cut filter
-    auto highCutFreq = audioProcessor.apvts.getRawParameterValue("HighCut Freq")->load();
-    auto highCutSlope = Slope(static_cast<int>(audioProcessor.apvts.getRawParameterValue("HighCut Slope")->load()));
+    auto highCutFreq = audioProcessor.apvts.getRawParameterValue(Params::HighCutFreq)->load();
+    auto highCutSlope = Slope(static_cast<int>(audioProcessor.apvts.getRawParameterValue(Params::HighCutSlope)->load()));
     auto highCutFilter = juce::dsp::FilterDesign<float>::designIIRLowpassHighOrderButterworthMethod(highCutFreq,
                                                                                                      audioProcessor.getSampleRate(),
                                                                                                      2 * (highCutSlope + 1));
@@ -277,9 +278,9 @@ void ResponseCurve::updateChain()
     updateCutFilter(leftHighCut, highCutFilter, highCutSlope);
 
     // update peak filter
-    auto peakFreq = audioProcessor.apvts.getRawParameterValue("Peak Freq")->load();
-    auto peakQuality = audioProcessor.apvts.getRawParameterValue("Peak Quality")->load();
-    auto peakGain = audioProcessor.apvts.getRawParameterValue("Peak Gain")->load();
+    auto peakFreq = audioProcessor.apvts.getRawParameterValue(Params::PeakFreq)->load();
+    auto peakQuality = audioProcessor.apvts.getRawParameterValue(Params::PeakQuality)->load();
+    auto peakGain = audioProcessor.apvts.getRawParameterValue(Params::PeakGain)->load();
     auto peakCoefficients = juce::dsp::IIR::Coefficients<float>::makePeakFilter(audioProcessor.getSampleRate(),
                                                                peakFreq,
                                                                peakQuality,

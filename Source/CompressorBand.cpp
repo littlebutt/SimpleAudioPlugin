@@ -3,10 +3,16 @@
 void CompressorBand::prepare(juce::dsp::ProcessSpec& spec, int samplesPerBlock)
 {
     compressor.prepare(spec);
-    LP.setType(juce::dsp::LinkwitzRileyFilterType::lowpass);
-    HP.setType(juce::dsp::LinkwitzRileyFilterType::highpass);
-    LP.prepare(spec);
-    HP.prepare(spec);
+    LP1.setType(juce::dsp::LinkwitzRileyFilterType::lowpass);
+    HP1.setType(juce::dsp::LinkwitzRileyFilterType::highpass);
+    AP2.setType(juce::dsp::LinkwitzRileyFilterType::allpass);
+    LP2.setType(juce::dsp::LinkwitzRileyFilterType::lowpass);
+    HP2.setType(juce::dsp::LinkwitzRileyFilterType::highpass);
+    LP1.prepare(spec);
+    HP1.prepare(spec);
+    AP2.prepare(spec);
+    LP2.prepare(spec);
+    HP2.prepare(spec);
     for (auto& buffer : filterBuffers)
     {
         buffer.setSize(spec.numChannels, samplesPerBlock);
@@ -24,7 +30,8 @@ void CompressorBand::update(juce::AudioProcessorValueTreeState& apvts)
     auto ratio = dynamic_cast<juce::AudioParameterChoice*>(apvts.getParameter(Params::RatioLowBand));
     compressor.setRatio(ratio->getCurrentChoiceName().getFloatValue());
 
-    lowCrossover = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(Params::LowMidCrossoverFreq));
+    lowMidCrossover = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(Params::LowMidCrossoverFreq));
+    midHighCrossover = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(Params::MidHighCrossoverFreq));
 }
 
 
@@ -39,16 +46,28 @@ void CompressorBand::process(juce::AudioSampleBuffer& buffer)
     {
         fb = buffer;
     }
-    auto cutoff = lowCrossover->get();
-    LP.setCutoffFrequency(cutoff);
-    HP.setCutoffFrequency(cutoff);
+    auto lowMidCutoff = lowMidCrossover->get();
+    LP1.setCutoffFrequency(lowMidCutoff);
+    HP1.setCutoffFrequency(lowMidCutoff);
+
+    auto midHighCutoff = midHighCrossover->get();
+    AP2.setCutoffFrequency(midHighCutoff);
+    LP2.setCutoffFrequency(midHighCutoff);
+    HP2.setCutoffFrequency(midHighCutoff);
 
     auto fb0Block = juce::dsp::AudioBlock<float>(filterBuffers[0]);
     auto fb1Block = juce::dsp::AudioBlock<float>(filterBuffers[1]);
+    auto fb2Block = juce::dsp::AudioBlock<float>(filterBuffers[2]);
     auto fb0Ctx = juce::dsp::ProcessContextReplacing<float>(fb0Block);
     auto fb1Ctx = juce::dsp::ProcessContextReplacing<float>(fb1Block);
-    LP.process(fb0Ctx);
-    HP.process(fb1Ctx);
+    auto fb2Ctx = juce::dsp::ProcessContextReplacing<float>(fb2Block);
+    LP1.process(fb0Ctx);
+    AP2.process(fb0Ctx);
+
+    HP1.process(fb1Ctx);
+    filterBuffers[2] = filterBuffers[1];
+    LP2.process(fb1Ctx);
+    HP2.process(fb2Ctx);
 
     auto numSamples = buffer.getNumSamples();
     auto numChannels = buffer.getNumChannels();
@@ -64,4 +83,5 @@ void CompressorBand::process(juce::AudioSampleBuffer& buffer)
 
     addFilterBand(buffer, filterBuffers[0]);
     addFilterBand(buffer, filterBuffers[1]);
+    addFilterBand(buffer, filterBuffers[2]);
 }

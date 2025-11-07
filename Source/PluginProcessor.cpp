@@ -78,7 +78,10 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleAudioPluginAudioProces
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(Params::LowMidCrossoverFreq,
                                                             Params::LowMidCrossoverFreq,
-                                                            juce::NormalisableRange<float>(20.f, 20000.f, 1.f, 1.f), 500));
+                                                            juce::NormalisableRange<float>(20.f, 999.f, 1.f, 1.f), 400));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(Params::MidHighCrossoverFreq,
+                                                            Params::MidHighCrossoverFreq,
+                                                            juce::NormalisableRange<float>(1000.f, 20000.f, 1.f, 1.f), 2000));
     return layout;
 }
 

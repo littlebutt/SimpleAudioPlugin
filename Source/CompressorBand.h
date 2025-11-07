@@ -14,7 +14,10 @@ private:
     juce::dsp::Compressor<float> compressor;
 
     using LinkwizRileyFilter = juce::dsp::LinkwitzRileyFilter<float>;
-    LinkwizRileyFilter LP, HP;
-    juce::AudioParameterFloat* lowCrossover {nullptr};
-    std::array<juce::AudioBuffer<float>, 2> filterBuffers;
+    LinkwizRileyFilter LP1, AP2,
+                        HP1, LP2,
+                            HP2;
+    juce::AudioParameterFloat* lowMidCrossover {nullptr};
+    juce::AudioParameterFloat* midHighCrossover {nullptr};
+    std::array<juce::AudioBuffer<float>, 3> filterBuffers;
 };

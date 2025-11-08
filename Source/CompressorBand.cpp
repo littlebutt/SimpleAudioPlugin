@@ -2,7 +2,9 @@
 
 void CompressorBand::prepare(juce::dsp::ProcessSpec& spec, int samplesPerBlock)
 {
-    compressor.prepare(spec);
+    compressors[0].prepare(spec);
+    compressors[1].prepare(spec);
+    compressors[2].prepare(spec);
     LP1.setType(juce::dsp::LinkwitzRileyFilterType::lowpass);
     HP1.setType(juce::dsp::LinkwitzRileyFilterType::highpass);
     AP2.setType(juce::dsp::LinkwitzRileyFilterType::allpass);
@@ -21,23 +23,33 @@ void CompressorBand::prepare(juce::dsp::ProcessSpec& spec, int samplesPerBlock)
 
 void CompressorBand::update(juce::AudioProcessorValueTreeState& apvts)
 {
-    auto attack = apvts.getRawParameterValue(Params::AttackLowBand)->load();
-    compressor.setAttack(attack);
-    auto threshold = apvts.getRawParameterValue(Params::ThresholdLowBand)->load();
-    compressor.setThreshold(threshold);
-    auto release = apvts.getRawParameterValue(Params::ReleaseLowBand)->load();
-    compressor.setRelease(release);
-    auto ratio = dynamic_cast<juce::AudioParameterChoice*>(apvts.getParameter(Params::RatioLowBand));
-    compressor.setRatio(ratio->getCurrentChoiceName().getFloatValue());
+    auto attackLow = apvts.getRawParameterValue(Params::AttackLowBand)->load();
+    compressors[0].setAttack(attackLow);
+    auto attackMid = apvts.getRawParameterValue(Params::AttackMidBand)->load();
+    compressors[1].setAttack(attackMid);
+    auto attackHigh = apvts.getRawParameterValue(Params::AttackHighBand)->load();
+    compressors[2].setAttack(attackHigh);
+    auto thresholdLow = apvts.getRawParameterValue(Params::ThresholdLowBand)->load();
+    compressors[0].setThreshold(thresholdLow);
+    auto thresholdMid = apvts.getRawParameterValue(Params::ThresholdMidBand)->load();
+    compressors[1].setThreshold(thresholdMid);
+    auto thresholdHigh = apvts.getRawParameterValue(Params::ThresholdHighBand)->load();
+    compressors[2].setThreshold(thresholdHigh);
+    auto releaseLow = apvts.getRawParameterValue(Params::ReleaseLowBand)->load();
+    compressors[0].setRelease(releaseLow);
+    auto releaseMid = apvts.getRawParameterValue(Params::ReleaseMidBand)->load();
+    compressors[1].setRelease(releaseMid);
+    auto releaseHigh = apvts.getRawParameterValue(Params::ReleaseHighBand)->load();
+    compressors[2].setRelease(releaseHigh);
+    auto ratioLow = dynamic_cast<juce::AudioParameterChoice*>(apvts.getParameter(Params::RatioLowBand));
+    compressors[0].setRatio(ratioLow->getCurrentChoiceName().getFloatValue());
+    auto ratioMid = dynamic_cast<juce::AudioParameterChoice*>(apvts.getParameter(Params::RatioMidBand));
+    compressors[1].setRatio(ratioMid->getCurrentChoiceName().getFloatValue());
+    auto ratioHigh = dynamic_cast<juce::AudioParameterChoice*>(apvts.getParameter(Params::RatioHighBand));
+    compressors[2].setRatio(ratioHigh->getCurrentChoiceName().getFloatValue());
 
     lowMidCrossover = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(Params::LowMidCrossoverFreq));
     midHighCrossover = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(Params::MidHighCrossoverFreq));
-}
-
-
-void CompressorBand::process(juce::dsp::ProcessContextReplacing<float> context)
-{
-    compressor.process(context);
 }
 
 void CompressorBand::process(juce::AudioSampleBuffer& buffer)
@@ -69,8 +81,16 @@ void CompressorBand::process(juce::AudioSampleBuffer& buffer)
     LP2.process(fb1Ctx);
     HP2.process(fb2Ctx);
 
+    for( size_t i = 0; i < filterBuffers.size(); ++i )
+    {
+        auto block = juce::dsp::AudioBlock<float>(filterBuffers[i]);
+        auto context = juce::dsp::ProcessContextReplacing<float>(block);
+        compressors[i].process(context);
+    }
+    
     auto numSamples = buffer.getNumSamples();
     auto numChannels = buffer.getNumChannels();
+    
     buffer.clear();
 
     auto addFilterBand = [nc = numChannels, ns = numSamples](auto& inputBuffer, const auto& source)

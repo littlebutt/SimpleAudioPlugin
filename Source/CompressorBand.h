@@ -8,10 +8,9 @@ class CompressorBand
 public:
     void prepare(juce::dsp::ProcessSpec& spec, int samplesPerBlock);
     void update(juce::AudioProcessorValueTreeState& apvts);
-    void process(juce::dsp::ProcessContextReplacing<float> context);
     void process(juce::AudioSampleBuffer& buffer);
 private:
-    juce::dsp::Compressor<float> compressor;
+    std::array<juce::dsp::Compressor<float>,3> compressors;
 
     using LinkwizRileyFilter = juce::dsp::LinkwitzRileyFilter<float>;
     LinkwizRileyFilter LP1, AP2,

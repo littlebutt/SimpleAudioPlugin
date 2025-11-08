@@ -62,11 +62,29 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleAudioPluginAudioProces
     layout.add(std::make_unique<juce::AudioParameterFloat>(Params::ThresholdLowBand,
                                                             Params::ThresholdLowBand,
                                                             juce::NormalisableRange<float>(-60.f, 12.f, 1.f, 1.f), 0.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(Params::ThresholdMidBand,
+                                                            Params::ThresholdMidBand,
+                                                            juce::NormalisableRange<float>(-60.f, 12.f, 1.f, 1.f), 0.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(Params::ThresholdHighBand,
+                                                            Params::ThresholdHighBand,
+                                                            juce::NormalisableRange<float>(-60.f, 12.f, 1.f, 1.f), 0.f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(Params::AttackLowBand,
                                                             Params::AttackLowBand,
                                                             juce::NormalisableRange<float>(5.f, 500.f, 1.f, 1.f), 50.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(Params::AttackMidBand,
+                                                            Params::AttackMidBand,
+                                                            juce::NormalisableRange<float>(5.f, 500.f, 1.f, 1.f), 50.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(Params::AttackHighBand,
+                                                            Params::AttackHighBand,
+                                                            juce::NormalisableRange<float>(5.f, 500.f, 1.f, 1.f), 50.f));
     layout.add(std::make_unique<juce::AudioParameterFloat>(Params::ReleaseLowBand,
                                                             Params::ReleaseLowBand,
+                                                            juce::NormalisableRange<float>(5.f, 500.f, 1.f, 1.f), 250.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(Params::ReleaseMidBand,
+                                                            Params::ReleaseMidBand,
+                                                            juce::NormalisableRange<float>(5.f, 500.f, 1.f, 1.f), 250.f));
+    layout.add(std::make_unique<juce::AudioParameterFloat>(Params::ReleaseHighBand,
+                                                            Params::ReleaseHighBand,
                                                             juce::NormalisableRange<float>(5.f, 500.f, 1.f, 1.f), 250.f));
     std::vector<float> choices = {1.f, 1.5f, 2.f, 3.f, 4.f, 5.f, 6.f, 7.f, 8.f, 9.f, 10.f, 15.f, 20.f, 50.f, 100.f};
     stringArray.clear();
@@ -75,6 +93,8 @@ juce::AudioProcessorValueTreeState::ParameterLayout SimpleAudioPluginAudioProces
         stringArray.add(juce::String(choice, 1));
     }
     layout.add(std::make_unique<juce::AudioParameterChoice>(Params::RatioLowBand, Params::RatioLowBand, stringArray, 3));
+    layout.add(std::make_unique<juce::AudioParameterChoice>(Params::RatioMidBand, Params::RatioMidBand, stringArray, 3));
+    layout.add(std::make_unique<juce::AudioParameterChoice>(Params::RatioHighBand, Params::RatioHighBand, stringArray, 3));
 
     layout.add(std::make_unique<juce::AudioParameterFloat>(Params::LowMidCrossoverFreq,
                                                             Params::LowMidCrossoverFreq,

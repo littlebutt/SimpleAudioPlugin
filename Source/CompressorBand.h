@@ -19,4 +19,9 @@ private:
     juce::AudioParameterFloat* lowMidCrossover {nullptr};
     juce::AudioParameterFloat* midHighCrossover {nullptr};
     std::array<juce::AudioBuffer<float>, 3> filterBuffers;
+    juce::dsp::Gain<float> inputGain, outputGain;
+    juce::AudioParameterFloat* inputGainParam {nullptr};
+    juce::AudioParameterFloat* outputGainParam {nullptr};
+
+    void applyGain(juce::AudioSampleBuffer& buffer, juce::dsp::Gain<float>& gain);
 };

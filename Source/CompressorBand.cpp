@@ -15,6 +15,10 @@ void CompressorBand::prepare(juce::dsp::ProcessSpec& spec, int samplesPerBlock)
     AP2.prepare(spec);
     LP2.prepare(spec);
     HP2.prepare(spec);
+    inputGain.prepare(spec);
+    outputGain.prepare(spec);
+    inputGain.setRampDurationSeconds(0.05f);
+    outputGain.setRampDurationSeconds(0.05f);
     for (auto& buffer : filterBuffers)
     {
         buffer.setSize(spec.numChannels, samplesPerBlock);
@@ -50,10 +54,16 @@ void CompressorBand::update(juce::AudioProcessorValueTreeState& apvts)
 
     lowMidCrossover = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(Params::LowMidCrossoverFreq));
     midHighCrossover = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(Params::MidHighCrossoverFreq));
+
+    inputGainParam = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(Params::GainIn));
+    outputGainParam = dynamic_cast<juce::AudioParameterFloat*>(apvts.getParameter(Params::GainOut));
 }
 
 void CompressorBand::process(juce::AudioSampleBuffer& buffer)
 {
+    inputGain.setGainDecibels(inputGainParam->get());
+    outputGain.setGainDecibels(outputGainParam->get());
+    applyGain(buffer, inputGain);
     for (auto& fb : filterBuffers)
     {
         fb = buffer;
@@ -104,4 +114,13 @@ void CompressorBand::process(juce::AudioSampleBuffer& buffer)
     addFilterBand(buffer, filterBuffers[0]);
     addFilterBand(buffer, filterBuffers[1]);
     addFilterBand(buffer, filterBuffers[2]);
+
+    applyGain(buffer, outputGain);
+}
+
+void CompressorBand::applyGain(juce::AudioSampleBuffer& buffer, juce::dsp::Gain<float>& gain)
+{
+    auto block = juce::dsp::AudioBlock<float>(buffer);
+    auto ctx = juce::dsp::ProcessContextReplacing<float>(block);
+    gain.process(ctx);
 }

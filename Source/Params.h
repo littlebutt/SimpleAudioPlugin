@@ -26,4 +26,6 @@ namespace Params
     const juce::String RatioLowBand {"RatioLowBand"};
     const juce::String RatioMidBand {"RatioMidBand"};
     const juce::String RatioHighBand {"RatioHighBand"};
+    const juce::String GainIn {"Gain In"};
+    const juce::String GainOut {"Gain Out"};
 }

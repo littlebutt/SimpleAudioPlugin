@@ -5,6 +5,13 @@
   <MAINGROUP id="piphfs" name="SimpleAudioPlugin">
     <GROUP id="{4BE22D72-288E-D51E-FA3F-194F058BBD6F}" name="Source">
       <GROUP id="{072120BD-2F55-E35A-9B07-567CB526C7E3}" name="components">
+        <FILE id="z5qsNh" name="CompressorBandControl.cpp" compile="1" resource="0"
+              file="Source/components/CompressorBandControl.cpp"/>
+        <FILE id="ggj5Vs" name="CompressorBandControl.h" compile="0" resource="0"
+              file="Source/components/CompressorBandControl.h"/>
+        <FILE id="WZzOl5" name="GlobalControl.cpp" compile="1" resource="0"
+              file="Source/components/GlobalControl.cpp"/>
+        <FILE id="JT8IhT" name="GlobalControl.h" compile="0" resource="0" file="Source/components/GlobalControl.h"/>
         <FILE id="fmDXtf" name="LookAndFeel.h" compile="0" resource="0" file="Source/components/LookAndFeel.h"/>
         <FILE id="VAXVyn" name="LookAndFeel.cpp" compile="1" resource="0" file="Source/components/LookAndFeel.cpp"/>
         <FILE id="AVDnxJ" name="ResponseCurve.h" compile="0" resource="0" file="Source/components/ResponseCurve.h"/>

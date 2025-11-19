@@ -116,6 +116,8 @@ OBJECTS_STANDALONE_PLUGIN := \
   $(JUCE_OBJDIR)/include_juce_audio_plugin_client_Standalone_1a871192.o \
 
 OBJECTS_SHARED_CODE := \
+  $(JUCE_OBJDIR)/CompressorBandControl_a4813a73.o \
+  $(JUCE_OBJDIR)/GlobalControl_5f0d6aca.o \
   $(JUCE_OBJDIR)/LookAndFeel_ef2ef7ce.o \
   $(JUCE_OBJDIR)/ResponseCurve_736e21be.o \
   $(JUCE_OBJDIR)/RotarySliderWithLabels_8a91fc31.o \
@@ -207,6 +209,16 @@ $(JUCE_OBJDIR)/include_juce_audio_plugin_client_Standalone_1a871192.o: ../../Juc
 	-$(V_AT)mkdir -p $(@D)
 	@echo "Compiling include_juce_audio_plugin_client_Standalone.cpp"
 	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_STANDALONE_PLUGIN) $(JUCE_CFLAGS_STANDALONE_PLUGIN) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/CompressorBandControl_a4813a73.o: ../../Source/components/CompressorBandControl.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling CompressorBandControl.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
+
+$(JUCE_OBJDIR)/GlobalControl_5f0d6aca.o: ../../Source/components/GlobalControl.cpp
+	-$(V_AT)mkdir -p $(@D)
+	@echo "Compiling GlobalControl.cpp"
+	$(V_AT)$(CXX) $(JUCE_CXXFLAGS) $(JUCE_CPPFLAGS_SHARED_CODE) $(JUCE_CFLAGS_SHARED_CODE) -o "$@" -c "$<"
 
 $(JUCE_OBJDIR)/LookAndFeel_ef2ef7ce.o: ../../Source/components/LookAndFeel.cpp
 	-$(V_AT)mkdir -p $(@D)

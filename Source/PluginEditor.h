@@ -13,6 +13,8 @@
 
 #include "components/RotarySliderWithLabels.h"
 #include "components/ResponseCurve.h"
+#include "components/GlobalControl.h"
+#include "components/CompressorBandControl.h"
 
 //==============================================================================
 /**
@@ -54,6 +56,9 @@ private:
 
     ResponseCurve responseCurve;
 
+    //================================================================================
+    GlobalControl globalControl;
+    CompressorBandControl compressorBandControl;
     LookAndFeel lnf;
 
     /*

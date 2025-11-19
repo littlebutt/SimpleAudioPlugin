@@ -1,11 +1,23 @@
 #include "GlobalControl.h"
 
 GlobalControl::GlobalControl(juce::AudioProcessorValueTreeState& apvts)
-: inGainSliderAttachment(apvts, Params::GainIn, inGainSlider),
+: inGainSlider(*apvts.getParameter(Params::GainIn), "dB"),
+lowMidCrossoverSlider(*apvts.getParameter(Params::LowMidCrossoverFreq), "Hz"),
+midHighCrossoverSlider(*apvts.getParameter(Params::MidHighCrossoverFreq), "Hz"),
+outGainSlider(*apvts.getParameter(Params::GainOut), "dB"),
+inGainSliderAttachment(apvts, Params::GainIn, inGainSlider),
 lowMidCrossoverSliderAttachmennt(apvts, Params::LowMidCrossoverFreq, lowMidCrossoverSlider),
 midHighCrossoverSliderAttachment(apvts, Params::MidHighCrossoverFreq, midHighCrossoverSlider),
 outGainSliderAttachment(apvts, Params::GainOut, outGainSlider)
 {
+    inGainSlider.labels.add({0.f, "-24dB"});
+    inGainSlider.labels.add({1.f, "24dB"});
+    lowMidCrossoverSlider.labels.add({0.f, "20Hz"});
+    lowMidCrossoverSlider.labels.add({1.f, "999Hz"});
+    midHighCrossoverSlider.labels.add({0.f, "1kHz"});
+    midHighCrossoverSlider.labels.add({1.f, "20kHz"});
+    outGainSlider.labels.add({0.f, "-24dB"});
+    outGainSlider.labels.add({1.f, "24dB"});
     addAndMakeVisible(inGainSlider);
     addAndMakeVisible(lowMidCrossoverSlider);
     addAndMakeVisible(midHighCrossoverSlider);
@@ -14,22 +26,12 @@ outGainSliderAttachment(apvts, Params::GainOut, outGainSlider)
 
 void GlobalControl::paint(juce::Graphics& g)
 {
-    auto bounds = getLocalBounds();
-    g.setColour(juce::Colours::blueviolet);
-    g.fillAll();
-
-    auto localBounds = bounds;
-
-    bounds.reduce(3, 3);
-    g.setColour(juce::Colours::black);
-    g.fillRoundedRectangle(bounds.toFloat(), 3);
-
-    g.drawRect(localBounds);
+   
 }
 
 void GlobalControl::resized()
 {
-    auto bounds = getLocalBounds();
+    auto bounds = getLocalBounds().reduced(5);
 
     using namespace juce;
 

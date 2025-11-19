@@ -29,7 +29,9 @@ SimpleAudioPluginAudioProcessorEditor::SimpleAudioPluginAudioProcessorEditor (Si
     lowCutFreqSliderAttachment(audioProcessor.apvts, Params::LowCutFreq, lowCutFreqSlider),
     highCutFreqSliderAttachment(audioProcessor.apvts, Params::HighCutFreq, highCutFreqSlider),
     lowCutSlopeSliderAttachment(audioProcessor.apvts, Params::LowCutSlope, lowCutSlopeSlider),
-    highCutSlopeSliderAttachment(audioProcessor.apvts, Params::HighCutSlope, highCutSlopeSlider)
+    highCutSlopeSliderAttachment(audioProcessor.apvts, Params::HighCutSlope, highCutSlopeSlider),
+    globalControl(audioProcessor.apvts),
+    compressorBandControl(audioProcessor.apvts)
 {
     peakFreqSlider.labels.add({0.f, "20Hz"});
     peakFreqSlider.labels.add({1.f, "20kHz"});
@@ -57,7 +59,9 @@ SimpleAudioPluginAudioProcessorEditor::SimpleAudioPluginAudioProcessorEditor (Si
         addAndMakeVisible(comp);
     }
 
-    setSize (480, 500);
+    addAndMakeVisible(globalControl);
+    addAndMakeVisible(compressorBandControl);
+    setSize(600, 800);
 }
 
 SimpleAudioPluginAudioProcessorEditor::~SimpleAudioPluginAudioProcessorEditor()
@@ -113,6 +117,14 @@ void SimpleAudioPluginAudioProcessorEditor::paint (juce::Graphics& g)
     g.drawFittedText("LowCut", lowCutSlopeSlider.getBounds(), juce::Justification::centredBottom, 1);
     g.drawFittedText("Peak", peakQualitySlider.getBounds(), juce::Justification::centredBottom, 1);
     g.drawFittedText("HighCut", highCutSlopeSlider.getBounds(), juce::Justification::centredBottom, 1);
+    g.drawFittedText("GainIn", globalControl.getBounds().withX(60), juce::Justification::bottomLeft, 1);
+    g.drawFittedText("LowMidFreq", globalControl.getBounds().withX(210), juce::Justification::bottomLeft, 1);
+    g.drawFittedText("MidHighFreq", globalControl.getBounds().withX(350), juce::Justification::bottomLeft, 1);
+    g.drawFittedText("GainOut", globalControl.getBounds().withX(500), juce::Justification::bottomLeft, 1);
+    g.drawFittedText("Attack", compressorBandControl.getBounds().withX(100), juce::Justification::bottomLeft, 1);
+    g.drawFittedText("Release", compressorBandControl.getBounds().withX(240), juce::Justification::bottomLeft, 1);
+    g.drawFittedText("Threshold", compressorBandControl.getBounds().withX(370), juce::Justification::bottomLeft, 1);
+    g.drawFittedText("Ratio", compressorBandControl.getBounds().withX(520), juce::Justification::bottomLeft, 1);
     
     auto buildDate = Time::getCompilationDate().toString(true, false);
     auto buildTime = Time::getCompilationDate().toString(false, true);
@@ -135,17 +147,20 @@ void SimpleAudioPluginAudioProcessorEditor::resized()
 
     bounds.removeFromTop(5);
 
-    auto lowCutArea = bounds.removeFromLeft(bounds.getWidth() * 0.33);
-    auto highCutArea = bounds.removeFromRight(bounds.getWidth() * 0.5);
+    auto eqBounds = bounds.removeFromTop(300); 
+    auto lowCutArea = eqBounds.removeFromLeft(eqBounds.getWidth() * 0.33);
+    auto highCutArea = eqBounds.removeFromRight(eqBounds.getWidth() * 0.5);
     lowCutFreqSlider.setBounds(lowCutArea.removeFromTop(lowCutArea.getHeight() * 0.5));
     lowCutSlopeSlider.setBounds(lowCutArea);
 
     highCutFreqSlider.setBounds(highCutArea.removeFromTop(highCutArea.getHeight() * 0.5));
     highCutSlopeSlider.setBounds(highCutArea);
 
-    peakFreqSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.33));
-    peakGainSlider.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.5));
-    peakQualitySlider.setBounds(bounds);
+    peakFreqSlider.setBounds(eqBounds.removeFromTop(eqBounds.getHeight() * 0.33));
+    peakGainSlider.setBounds(eqBounds.removeFromTop(eqBounds.getHeight() * 0.5));
+    peakQualitySlider.setBounds(eqBounds.removeFromTop(eqBounds.getHeight()));
+    globalControl.setBounds(bounds.removeFromTop(bounds.getHeight() * 0.5));
+    compressorBandControl.setBounds(bounds);
 }
 
 juce::Array<juce::Component*> SimpleAudioPluginAudioProcessorEditor::getComps()

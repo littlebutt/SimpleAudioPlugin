@@ -27,11 +27,26 @@ ResponseCurve::~ResponseCurve()
     }
 }
 
+juce::Rectangle<int> ResponseCurve::drawModuleBound(juce::Graphics& g, juce::Rectangle<int> bounds)
+{
+    g.setColour(juce::Colours::blueviolet);
+    g.fillAll();
+
+    auto localBounds = bounds;
+    bounds.reduce(3, 3);
+    g.setColour(juce::Colours::black);
+    g.fillRoundedRectangle(bounds.toFloat(), 3);
+    g.drawRect(localBounds);
+    return bounds;
+}
+
 void ResponseCurve::paint(juce::Graphics& g)
 {
     using namespace juce;
 
     g.fillAll(Colours::black);
+
+    auto bounds = drawModuleBound(g, getLocalBounds());
     
     auto renderArea = getAnalysisArea();
     auto left = renderArea.getX();
@@ -56,6 +71,8 @@ void ResponseCurve::paint(juce::Graphics& g)
         g.drawHorizontalLine(y, left, right);
     }
 
+    Graphics::ScopedSaveState sss(g);
+    g.reduceClipRegion(renderArea);
     // Draw curve
     auto leftChannelFFTPath = leftPathProducer.getPath();
     leftChannelFFTPath.applyTransform(AffineTransform().translation(renderArea.getX(), renderArea.getY()));

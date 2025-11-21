@@ -46,6 +46,8 @@ private:
 
     void updateChain();
 
+    juce::Rectangle<int> drawModuleBound(juce::Graphics& g, juce::Rectangle<int> bounds);
+
     PathProducer leftPathProducer, rightPathProducer;
 
     //=============================================================

@@ -15,6 +15,12 @@ rightPathProducer(audioProcessor.rightChannelFifo)
 
     updateChain();
     
+    lowMidCrossoverParam = dynamic_cast<juce::AudioParameterFloat*>(audioProcessor.apvts.getParameter(Params::LowMidCrossoverFreq));
+    midHighCrossoverParam = dynamic_cast<juce::AudioParameterFloat*>(audioProcessor.apvts.getParameter(Params::MidHighCrossoverFreq));
+    lowThresholdParam = dynamic_cast<juce::AudioParameterFloat*>(audioProcessor.apvts.getParameter(Params::ThresholdLowBand));
+    midThresholdParam = dynamic_cast<juce::AudioParameterFloat*>(audioProcessor.apvts.getParameter(Params::ThresholdMidBand));
+    highThresholdParam = dynamic_cast<juce::AudioParameterFloat*>(audioProcessor.apvts.getParameter(Params::ThresholdHighBand));
+
     startTimerHz(60);
 }
 
@@ -99,6 +105,8 @@ void ResponseCurve::paint(juce::Graphics& g)
     g.setColour(Colours::black);
     
     g.fillPath(border);
+
+    drawCrossover(g, bounds);
     
     // Draw text labels
     g.setColour(Colours::lightgrey);
@@ -189,6 +197,25 @@ void ResponseCurve::parameterValueChanged(int parameterIndex, float newValue)
 }
 
 void ResponseCurve::parameterGestureChanged(int parameterIndex, bool gestureIsStarting) { }
+
+void ResponseCurve::drawCrossover(juce::Graphics& g, juce::Rectangle<int> bounds)
+{
+    using namespace juce;
+    bounds = getAnalysisArea();
+    const auto top = bounds.getY();
+    const auto bottom = bounds.getBottom();
+    auto mapX = [left = bounds.getX(), width = bounds.getWidth()](float frequency)
+    {
+        auto normX = juce::mapFromLog10(frequency, 20.f, 20000.f);
+        return left + width * normX;
+    };
+    auto lowMidX = mapX(lowMidCrossoverParam->get());
+    g.setColour(juce::Colours::orange);
+    g.drawVerticalLine(lowMidX, top, bottom);
+    auto midHighX = mapX(midHighCrossoverParam->get());
+    g.setColour(juce::Colours::orange);
+    g.drawVerticalLine(midHighX, top, bottom);
+}
 
 void ResponseCurve::timerCallback()
 {

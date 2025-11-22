@@ -48,6 +48,14 @@ private:
 
     juce::Rectangle<int> drawModuleBound(juce::Graphics& g, juce::Rectangle<int> bounds);
 
+    void drawCrossover(juce::Graphics& g, juce::Rectangle<int> bounds);
+
+    juce::AudioParameterFloat* lowMidCrossoverParam { nullptr };
+    juce::AudioParameterFloat* midHighCrossoverParam { nullptr };
+    juce::AudioParameterFloat* lowThresholdParam { nullptr };
+    juce::AudioParameterFloat* midThresholdParam { nullptr };
+    juce::AudioParameterFloat* highThresholdParam { nullptr };
+
     PathProducer leftPathProducer, rightPathProducer;
 
     //=============================================================

@@ -204,6 +204,8 @@ void ResponseCurve::drawCrossover(juce::Graphics& g, juce::Rectangle<int> bounds
     bounds = getAnalysisArea();
     const auto top = bounds.getY();
     const auto bottom = bounds.getBottom();
+    const auto left = bounds.getX();
+    const auto right = bounds.getRight();
     auto mapX = [left = bounds.getX(), width = bounds.getWidth()](float frequency)
     {
         auto normX = juce::mapFromLog10(frequency, 20.f, 20000.f);
@@ -215,6 +217,16 @@ void ResponseCurve::drawCrossover(juce::Graphics& g, juce::Rectangle<int> bounds
     auto midHighX = mapX(midHighCrossoverParam->get());
     g.setColour(juce::Colours::orange);
     g.drawVerticalLine(midHighX, top, bottom);
+
+    auto mapY = [bottom, top](float db)
+    {
+        return jmap(db, -72.f, 24.f, (float) bottom, (float) top);
+    };
+    g.setColour(Colours::yellow);
+    g.drawHorizontalLine(mapY(lowThresholdParam->get()), left, lowMidX);
+    g.drawHorizontalLine(mapY(lowThresholdParam->get()), lowMidX, midHighX);
+    g.drawHorizontalLine(mapY(lowThresholdParam->get()), midHighX, right);
+
 }
 
 void ResponseCurve::timerCallback()
